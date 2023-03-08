@@ -93,7 +93,8 @@ def get_api_answer(timestamp: int) -> dict:
 
 def check_response(response: dict) -> tuple[int, list]:
     """Check if keys 'current_date' and 'homeworks' exist and have the
-    right types."""
+    right types.
+    """
     try:
         cur_date: int = response['current_date']
         works: list = response['homeworks']
@@ -111,7 +112,8 @@ def check_response(response: dict) -> tuple[int, list]:
 
 def parse_status(homework: dict) -> str:
     """Get dict, parse with the keys 'status', 'homework_name',
-    check for value of status in dict HOMEWORK_VERDICTS."""
+    check for value of status in dict HOMEWORK_VERDICTS.
+    """
     if not isinstance(homework, dict):
         raise TypeError('Homework is not a dict instance')
     try:
