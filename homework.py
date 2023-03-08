@@ -92,8 +92,9 @@ def get_api_answer(timestamp: int) -> dict:
 
 
 def check_response(response: dict) -> tuple[int, list]:
-    """Check if keys 'current_date' and 'homeworks' exist and have the
-    right types.
+    """Look for keys 'current_date' and 'homeworks'.
+
+    Check if keys are exist and have the right types.
     """
     try:
         cur_date: int = response['current_date']
@@ -111,8 +112,10 @@ def check_response(response: dict) -> tuple[int, list]:
 
 
 def parse_status(homework: dict) -> str:
-    """Get dict, parse with the keys 'status', 'homework_name',
-    check for value of status in dict HOMEWORK_VERDICTS.
+    """
+    Get dict, parse with the keys 'status', 'homework_name'.
+
+    Check for value of status in dict HOMEWORK_VERDICTS.
     """
     if not isinstance(homework, dict):
         raise TypeError('Homework is not a dict instance')
@@ -130,7 +133,7 @@ def parse_status(homework: dict) -> str:
 
 
 def main() -> NoReturn:
-    """Main logical job of the bot."""
+    """Do main logical job of the bot."""
     check_tokens()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     timestamp: int = int(time.time())
