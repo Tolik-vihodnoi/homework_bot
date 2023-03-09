@@ -18,7 +18,7 @@ PRACTICUM_TOKEN: Optional[str] = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN: Optional[str] = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID: Optional[str] = os.getenv('TELEGRAM_CHAT_ID')
 
-RETRY_PERIOD: int = 5
+RETRY_PERIOD: int = 600
 ENDPOINT: str = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS: dict[str, str] = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -95,7 +95,7 @@ def check_response(response: dict[str, Union[list, int]]) -> NoReturn:
         raise KeyError('The response has no key "homeworks"!')
     if not isinstance(response['homeworks'], list):
         raise TypeError("Unexpected type of the variable 'homeworks'")
-    logging.debug(f'The check has been passed successfully')
+    logging.debug('The check has been passed successfully')
 
 
 def parse_status(homework: dict[str, Union[int, str]]) -> str:
