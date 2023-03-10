@@ -35,36 +35,30 @@ def check_tokens() -> NoReturn:
         'PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID'
     )
     missing_tokens: list[Optional[str]] = [
-        i for i in token_names if globals().get(i) is None
+        token for token in token_names if globals().get(token) is None
     ]
-    if not missing_tokens:
-        logging.debug(
-            f"The vars: pract={PRACTICUM_TOKEN}, "
-            f"tele={TELEGRAM_TOKEN}, tele_chat={TELEGRAM_CHAT_ID}"
-        )
-        try:
-            int(TELEGRAM_CHAT_ID)
-        except ValueError:
-            raise TokenError('Variable TELEGRAM_CHAT_ID is not a number')
-    else:
+    if missing_tokens:
         logging.critical(f'This tokens have None value: {missing_tokens}')
         raise TokenError('Environment has no needed tokens!')
+    logging.debug("All the tokens are valid")
+    if not TELEGRAM_CHAT_ID.isdigit():
+        raise TokenError('Variable TELEGRAM_CHAT_ID is not a number')
 
 
 def send_message(bot: telegram.bot.Bot, message: str) -> NoReturn:
     """Send the message to TELEGRAM_CHAT_ID by passed bot instance."""
-    logging.debug(f'Trying to send the message to {TELEGRAM_CHAT_ID}')
+    logging.debug(f'Trying to send the message')
     try:
         bot.send_message(TELEGRAM_CHAT_ID, str(message))
-    except telegram.error.TelegramError:
-        logging.error('The message hasn\'t been sent!')
+    except telegram.error.TelegramError as e:
+        logging.error(f'The message hasn\'t been sent! Error: {e}')
         raise NotForSending('The message hasn\'t been sent')
     logging.debug('The message has been sent!')
 
 
 def get_api_answer(timestamp: int) -> dict[str, Union[list, int]]:
     """Get int timestamp and return API response in dict type."""
-    logging.debug(f'Trying to get API answer with ts={timestamp}')
+    logging.debug(f'Trying to get API answer with {timestamp=}')
     try:
         response = requests.get(
             ENDPOINT, headers=HEADERS, params={'from_date': timestamp}
@@ -90,8 +84,8 @@ def check_response(response: dict[str, Union[list, int]]) -> NoReturn:
     """
     logging.debug(f'Trying to check response. Response: {response}')
     if not isinstance(response, dict):
-        raise TypeError("Unexpected type of the response")
-    if 'homeworks' not in response.keys():
+        raise TypeError(f"Unexpected type of the response: {type(response)}")
+    if 'homeworks' not in response:
         raise KeyError('The response has no key "homeworks"!')
     if not isinstance(response['homeworks'], list):
         raise TypeError("Unexpected type of the variable 'homeworks'")
@@ -107,11 +101,11 @@ def parse_status(homework: dict[str, Union[int, str]]) -> str:
     logging.debug('Trying to parse the status of homework')
     if not isinstance(homework, dict):
         raise TypeError('Homework is not a dict instance')
-    if 'homework_name' not in homework.keys():
+    if 'homework_name' not in homework:
         raise KeyError('Dict "homework" has no key "homework_name"')
     homework_name: str = homework['homework_name']
     status: Optional[str] = homework.get('status')
-    if status not in HOMEWORK_VERDICTS.keys():
+    if status not in HOMEWORK_VERDICTS:
         raise ValueError(
             f'The received status "{status}" is not '
             f'found in the verdict dictionary'
@@ -137,14 +131,14 @@ def main() -> NoReturn:
             r_json = get_api_answer(timestamp)
             check_response(r_json)
             works = r_json['homeworks']
-            if works:
-                cur_msg: str = parse_status(works[0])
-                if prev_msg != cur_msg:
-                    send_message(bot, cur_msg)
-                    prev_msg = cur_msg
-                timestamp = r_json.get('current_date', int(time.time()) - 1)
-            else:
+            if not works:
                 logging.debug('Have no updated satus')
+                continue
+            cur_msg: str = parse_status(works[0])
+            if prev_msg != cur_msg:
+                send_message(bot, cur_msg)
+                prev_msg = cur_msg
+            timestamp = r_json.get('current_date', int(time.time()) - 1)
         except NotForSending:
             logging.error(
                 f'The var "timestamp" won\'t be updated this loop. Will try '
