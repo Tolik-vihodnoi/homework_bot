@@ -125,7 +125,7 @@ def main() -> NoReturn:
     while True:
         try:
             logging.debug(
-                f'New loop: timestamp={timestamp}, '
+                f'New loop: {timestamp=}, '
                 f'evaluating_cur_time={int(time.time())}'
             )
             r_json = get_api_answer(timestamp)
@@ -160,9 +160,8 @@ def main() -> NoReturn:
 if __name__ == '__main__':
     logging.basicConfig(
         handlers=(logging.StreamHandler(sys.stdout), ),
-        format=(
-            '%(asctime)s [%(levelname)s]:%(funcName)s:%(lineno)s - %(message)s'
-        ),
+        format='{asctime}[{levelname}]:{funcName:>15}:{lineno:<5} - {message}',
+        style='{',
         level=logging.DEBUG
     )
     main()
