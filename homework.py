@@ -47,7 +47,7 @@ def check_tokens() -> NoReturn:
 
 def send_message(bot: telegram.bot.Bot, message: str) -> NoReturn:
     """Send the message to TELEGRAM_CHAT_ID by passed bot instance."""
-    logging.debug(f'Trying to send the message')
+    logging.debug('Trying to send the message')
     try:
         bot.send_message(TELEGRAM_CHAT_ID, str(message))
     except telegram.error.TelegramError as e:
